@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desenhos para Colorir</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ff69b4;
+            padding: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        p {
+            margin: 5px 0 0 0;
+        }
+
+        .galeria {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .galeria img {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #ff69b4;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .galeria img:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            background-color: #ff69b4;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Desenhos para Colorir</h1>
+        <p>Clique no desenho para ampliar, baixar ou imprimir!</p>
+    </header>
+
+    <div class="galeria">
+        <a href="img/desenho1.png" target="_blank">
+            <img src="img/desenho1.png" alt="Desenho 1">
+        </a>
+        <a href="img/desenho2.png" target="_blank">
+            <img src="img/desenho2.png" alt="Desenho 2">
+        </a>
+        <a href="img/desenho3.png" target="_blank">
+            <img src="img/desenho3.png" alt="Desenho 3">
+        </a>
+        <a href="img/desenho4.png" target="_blank">
+            <img src="img/desenho4.png" alt="Desenho 4">
+        </a>
+        <!-- Pode adicionar mais imagens seguindo o mesmo padrão -->
+    </div>
+
+    <footer>
+        © 2025 Desenhos para Colorir | Todos os direitos reservados.
+    </footer>
+
+</body>
+</html>

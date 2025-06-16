@@ -4,138 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desenhos para Colorir Online</title>
-    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     <style>
         body {
-            background-color: #fff;
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             text-align: center;
-        }
-
-        header {
-            background-color: #ff69b4;
-            color: white;
-            padding: 15px;
-        }
-
-        h1 {
+            background-color: #fce4ec;
             margin: 0;
-        }
-
-        .menu {
-            margin: 15px;
-        }
-
-        canvas {
-            border: 2px solid #ff69b4;
-            border-radius: 8px;
-            touch-action: none;
-        }
-
-        .controls {
-            margin: 10px;
-        }
-
-        .controls input[type=color] {
-            width: 40px;
-            height: 40px;
-            border: none;
             padding: 0;
         }
-
-        .controls button {
+        h1 {
             background-color: #ff69b4;
             color: white;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
+            margin: 0;
+            padding: 20px;
+        }
+        .menu {
+            margin: 20px;
+        }
+        canvas {
+            border: 2px solid #333;
+            background-color: white;
             border-radius: 8px;
+        }
+        label {
+            font-weight: bold;
+        }
+        select, input[type="color"], button {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #ff69b4;
+            color: white;
             cursor: pointer;
         }
-
-        .controls button:hover {
-            background-color: #e0559e;
-        }
-
-        footer {
-            background-color: #ff69b4;
-            color: white;
-            padding: 10px;
-            font-size: 14px;
+        button:hover {
+            background-color: #e7549d;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Desenhos para Colorir Online</h1>
-        <p>Escolha um desenho, selecione a cor e pinte diretamente na tela!</p>
-    </header>
+    <h1>Desenhos para Colorir Online</h1>
 
     <div class="menu">
         <label for="imageSelect">Escolha o desenho:</label>
         <select id="imageSelect">
-            <option value="desenho1.png">Desenho 1</option>
-            <option value="desenho2.png">Desenho 2</option>
-            <option value="desenho3.png">Desenho 3</option>
+            <optgroup label="🐶 Animais">
+                <option value="img/animais-cachorro.png">Cachorro</option>
+                <option value="img/animais-gato.png">Gato</option>
+                <option value="img/animais-elefante.png">Elefante</option>
+            </optgroup>
+            <optgroup label="🚗 Transportes">
+                <option value="img/carro.png">Carro</option>
+                <option value="img/aviao.png">Avião</option>
+            </optgroup>
+            <optgroup label="👧 Personagens">
+                <option value="img/princesa.png">Princesa</option>
+                <option value="img/super-heroi.png">Super-Herói</option>
+            </optgroup>
+            <optgroup label="🏞️ Natureza">
+                <option value="img/flor.png">Flor</option>
+                <option value="img/arvore.png">Árvore</option>
+            </optgroup>
         </select>
-    </div>
 
-    <div class="controls">
-        <label>Escolha a cor: </label>
+        <br>
+
+        <label for="colorPicker">Escolha a cor:</label>
         <input type="color" id="colorPicker" value="#000000">
-        <button onclick="clearCanvas()">Limpar Tudo</button>
-        <button onclick="downloadImage()">Baixar Desenho</button>
+
+        <button onclick="clearCanvas()">Limpar</button>
     </div>
 
-    <canvas id="drawingCanvas" width="300" height="400"></canvas>
-
-    <footer>
-        © 2025 Desenhos para Colorir Online | Todos os direitos reservados.
-    </footer>
+    <canvas id="canvas" width="400" height="500"></canvas>
 
     <script>
-        const canvas = document.getElementById('drawingCanvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const colorPicker = document.getElementById('colorPicker');
         const imageSelect = document.getElementById('imageSelect');
 
-        let drawing = false;
-
-        function loadImage() {
-            const img = new Image();
-            img.src = 'img/' + imageSelect.value;
-            img.onload = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        imageSelect.addEventListener('change', loadImage);
-        window.onload = loadImage;
+        let painting = false;
+        let currentImage = new Image();
 
         function startPosition(e) {
-            drawing = true;
+            painting = true;
             draw(e);
         }
 
         function endPosition() {
-            drawing = false;
+            painting = false;
             ctx.beginPath();
         }
 
         function draw(e) {
-            if (!drawing) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.touches[0].clientX) - rect.left;
-            const y = (e.clientY || e.touches[0].clientY) - rect.top;
-
-            ctx.lineWidth = 4;
+            if (!painting) return;
+            ctx.lineWidth = 5;
             ctx.lineCap = 'round';
             ctx.strokeStyle = colorPicker.value;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
 
             ctx.lineTo(x, y);
             ctx.stroke();
@@ -143,24 +116,32 @@
             ctx.moveTo(x, y);
         }
 
+        function loadImage(src) {
+            currentImage.src = src;
+            currentImage.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        imageSelect.addEventListener('change', (e) => {
+            loadImage(e.target.value);
+        });
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+        }
+
         canvas.addEventListener('mousedown', startPosition);
         canvas.addEventListener('mouseup', endPosition);
         canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseleave', endPosition);
 
-        canvas.addEventListener('touchstart', startPosition);
-        canvas.addEventListener('touchend', endPosition);
-        canvas.addEventListener('touchmove', draw);
-
-        function clearCanvas() {
-            loadImage();
-        }
-
-        function downloadImage() {
-            const link = document.createElement('a');
-            link.download = 'meu-desenho.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
+        // Carregar o primeiro desenho automaticamente
+        window.onload = () => {
+            loadImage(imageSelect.value);
+        };
     </script>
 
 </body>

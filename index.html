@@ -1,148 +1,233 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desenhos para Colorir Online</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #fce4ec;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            background-color: #ff69b4;
-            color: white;
-            margin: 0;
-            padding: 20px;
-        }
-        .menu {
-            margin: 20px;
-        }
-        canvas {
-            border: 2px solid #333;
-            background-color: white;
-            border-radius: 8px;
-        }
-        label {
-            font-weight: bold;
-        }
-        select, input[type="color"], button {
-            padding: 8px;
-            margin: 5px;
-            border-radius: 5px;
-            border: none;
-        }
-        button {
-            background-color: #ff69b4;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #e7549d;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Desenhos para Colorir Online</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fefbff;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(90deg, #f48fb1, #81d4fa);
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      background: #fce4ec;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .toolbar select, .toolbar input[type="color"], .toolbar input[type="range"], .toolbar button {
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+    }
+
+    .toolbar button {
+      background-color: #81d4fa;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .toolbar button:hover {
+      background-color: #4fc3f7;
+    }
+
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+
+    canvas {
+      border: 2px solid #ce93d8;
+      background-color: white;
+      touch-action: none;
+    }
+
+    #fullscreen-area {
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    @media (max-width: 600px) {
+      canvas {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header>🎨 Desenhos para Colorir Online</header>
 
-    <h1>Desenhos para Colorir Online</h1>
+  <div class="toolbar">
+    <label for="tool">Ferramenta:</label>
+    <select id="tool">
+      <option value="pencil">Lápis</option>
+      <option value="marker">Piloto</option>
+      <option value="brush">Pincel</option>
+    </select>
 
-    <div class="menu">
-        <label for="imageSelect">Escolha o desenho:</label>
-        <select id="imageSelect">
-            <optgroup label="🐶 Animais">
-                <option value="img/animais-cachorro.png">Cachorro</option>
-                <option value="img/animais-gato.png">Gato</option>
-                <option value="img/animais-elefante.png">Elefante</option>
-            </optgroup>
-            <optgroup label="🚗 Transportes">
-                <option value="img/carro.png">Carro</option>
-                <option value="img/aviao.png">Avião</option>
-            </optgroup>
-            <optgroup label="👧 Personagens">
-                <option value="img/princesa.png">Princesa</option>
-                <option value="img/super-heroi.png">Super-Herói</option>
-            </optgroup>
-            <optgroup label="🏞️ Natureza">
-                <option value="img/flor.png">Flor</option>
-                <option value="img/arvore.png">Árvore</option>
-            </optgroup>
-        </select>
+    <label for="size">Espessura:</label>
+    <input type="range" id="size" min="1" max="30" value="5">
 
-        <br>
+    <label for="color">Cor:</label>
+    <input type="color" id="color" value="#000000">
 
-        <label for="colorPicker">Escolha a cor:</label>
-        <input type="color" id="colorPicker" value="#000000">
+    <label for="drawing">Escolha o desenho:</label>
+    <select id="drawing">
+      <option value="">Nenhum</option>
+      <option value="img/desenho1.png">Desenho 1</option>
+      <option value="img/desenho2.png">Desenho 2</option>
+      <option value="img/desenho3.png">Desenho 3</option>
+    </select>
 
-        <button onclick="clearCanvas()">Limpar</button>
+    <button id="clear">Limpar</button>
+    <button id="fullscreen-btn">Tela Cheia</button>
+  </div>
+
+  <div id="container">
+    <div id="fullscreen-area">
+      <canvas id="canvas" width="800" height="600"></canvas>
     </div>
+  </div>
 
-    <canvas id="canvas" width="400" height="500"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let tool = document.getElementById('tool').value;
+    let size = document.getElementById('size').value;
+    let color = document.getElementById('color').value;
 
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const colorPicker = document.getElementById('colorPicker');
-        const imageSelect = document.getElementById('imageSelect');
+    let drawingImg = new Image();
 
-        let painting = false;
-        let currentImage = new Image();
+    document.getElementById('tool').addEventListener('change', e => {
+      tool = e.target.value;
+      updateSizeRange();
+    });
 
-        function startPosition(e) {
-            painting = true;
-            draw(e);
-        }
+    document.getElementById('size').addEventListener('input', e => {
+      size = e.target.value;
+    });
 
-        function endPosition() {
-            painting = false;
-            ctx.beginPath();
-        }
+    document.getElementById('color').addEventListener('input', e => {
+      color = e.target.value;
+    });
 
-        function draw(e) {
-            if (!painting) return;
-            ctx.lineWidth = 5;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = colorPicker.value;
+    document.getElementById('clear').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (drawingImg.src) ctx.drawImage(drawingImg, 0, 0, canvas.width, canvas.height);
+    });
 
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
-
-        function loadImage(src) {
-            currentImage.src = src;
-            currentImage.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        imageSelect.addEventListener('change', (e) => {
-            loadImage(e.target.value);
-        });
-
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-        }
-
-        canvas.addEventListener('mousedown', startPosition);
-        canvas.addEventListener('mouseup', endPosition);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseleave', endPosition);
-
-        // Carregar o primeiro desenho automaticamente
-        window.onload = () => {
-            loadImage(imageSelect.value);
+    document.getElementById('drawing').addEventListener('change', (e) => {
+      const selected = e.target.value;
+      if (selected) {
+        drawingImg.src = selected;
+        drawingImg.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(drawingImg, 0, 0, canvas.width, canvas.height);
         };
-    </script>
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
 
+    function updateSizeRange() {
+      if (tool === "pencil") {
+        document.getElementById('size').min = 1;
+        document.getElementById('size').max = 5;
+        document.getElementById('size').value = 2;
+      } else if (tool === "marker") {
+        document.getElementById('size').min = 5;
+        document.getElementById('size').max = 15;
+        document.getElementById('size').value = 10;
+      } else if (tool === "brush") {
+        document.getElementById('size').min = 10;
+        document.getElementById('size').max = 30;
+        document.getElementById('size').value = 15;
+      }
+      size = document.getElementById('size').value;
+    }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('mousemove', draw);
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startDrawing(e.touches[0]);
+    });
+
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchcancel', stopDrawing);
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      draw(e.touches[0]);
+    });
+
+    function startDrawing(e) {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(getX(e), getY(e));
+    }
+
+    function stopDrawing() {
+      drawing = false;
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size;
+      ctx.lineCap = "round";
+      ctx.lineTo(getX(e), getY(e));
+      ctx.stroke();
+    }
+
+    function getX(e) {
+      const rect = canvas.getBoundingClientRect();
+      return e.clientX - rect.left;
+    }
+
+    function getY(e) {
+      const rect = canvas.getBoundingClientRect();
+      return e.clientY - rect.top;
+    }
+
+    // Botão de Tela Cheia
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const fullscreenArea = document.getElementById('fullscreen-area');
+
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        fullscreenArea.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Inicializar tamanho padrão de ferramenta
+    updateSizeRange();
+  </script>
 </body>
 </html>
